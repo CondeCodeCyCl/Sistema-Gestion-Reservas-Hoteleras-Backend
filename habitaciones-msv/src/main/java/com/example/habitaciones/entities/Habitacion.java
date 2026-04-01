@@ -6,7 +6,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "HABITACIONES") 
+@Table(name = "HABITACIONES")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -26,15 +26,15 @@ public class Habitacion {
     private String tipo;
 
     @Column(name = "PRECIO", nullable = false, precision = 10, scale = 2)
-    private Double precio; 
+    private Double precio;
 
     @Column(name = "CAPACIDAD", nullable = false)
-    private Integer capacidad;
+    private Short capacidad;
 
-    //@Convert(converter = EstadoHabitacionConverter.class)
-    @Column(name = "ID_ESTADO_HAB", nullable = false)
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "ESTADO_HABITACION", nullable = false, length = 15)
     private EstadoHabitacion estadoHabitacion;
-
 
     @Enumerated(EnumType.STRING)
     @Column(name = "ESTADO_REGISTRO", nullable = false, length = 10)
