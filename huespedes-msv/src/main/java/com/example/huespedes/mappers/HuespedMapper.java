@@ -19,6 +19,7 @@ public class HuespedMapper implements CommonMapper<HuespedRequest, HuespedRespon
 				.email(request.email())
 				.telefono(request.telefono())
 				.documento(request.documento())
+				.nacionalidad(request.nacionalidad())
 				.estadoRegistro(EstadoRegistro.ACTIVO)
 				.build();
 	}
@@ -32,7 +33,8 @@ public class HuespedMapper implements CommonMapper<HuespedRequest, HuespedRespon
 				entity.getApellido(),
 				entity.getEmail(),
 				entity.getTelefono(),
-				entity.getDocumento()
+				entity.getDocumento(),
+				entity.getNacionalidad()
 				);
 	}
 

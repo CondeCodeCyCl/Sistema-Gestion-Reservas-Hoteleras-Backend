@@ -1,5 +1,4 @@
 package com.example.habitaciones.entities;
-
 import com.example.commons.enums.EstadoHabitacion;
 import com.example.commons.enums.EstadoRegistro;
 import jakarta.persistence.*;
