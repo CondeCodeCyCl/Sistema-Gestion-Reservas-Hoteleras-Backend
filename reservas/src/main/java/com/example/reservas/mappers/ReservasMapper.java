@@ -2,6 +2,8 @@ package com.example.reservas.mappers;
 
 import org.springframework.stereotype.Component;
 
+import com.example.commons.clients.HabitacionesClient;
+import com.example.commons.clients.HuespedesClient;
 import com.example.commons.dto.DatosHabitacion;
 import com.example.commons.dto.DatosHuesped;
 import com.example.commons.dto.HabitacionResponse;
@@ -13,9 +15,16 @@ import com.example.commons.mappers.CommonMapper;
 import com.example.reservas.dto.ReservaResponse;
 import com.example.reservas.entities.Reservas;
 
+import lombok.AllArgsConstructor;
+
 @Component
+@AllArgsConstructor
 public class ReservasMapper implements CommonMapper<ReservaRequest, ReservaResponse, Reservas>{
 
+	private final HuespedesClient huespedesClient;
+	
+	private final HabitacionesClient habitacionesClient;
+	
 	@Override
 	public Reservas requestToEntity(ReservaRequest request) {
 		if(request == null) return null;
@@ -35,18 +44,9 @@ public class ReservasMapper implements CommonMapper<ReservaRequest, ReservaRespo
 	public ReservaResponse entityToResponse(Reservas entity) {
 		if(entity == null) return null;
 		
-		return new ReservaResponse(
-				entity.getId(),
-				null,
-				null,
-				entity.getFechaEntrada(),
-				entity.getFechaSalida(),
-				entity.getMontoTotal(),
-				entity.getEstadoReserva().getDescripcion());
-	}
-	
-	public ReservaResponse entityToResponse(Reservas entity, HuespedResponse huesped, HabitacionResponse habitacion) {
-		if(entity == null) return null;
+		HuespedResponse huesped = huespedesClient.obtenerHuespedPorId(entity.getIdHuesped());
+		
+		HabitacionResponse habitacion = habitacionesClient.obtenerHabitacionPorId(entity.getIdHabitacion());
 		
 		return new ReservaResponse(
 				entity.getId(),
@@ -55,10 +55,9 @@ public class ReservasMapper implements CommonMapper<ReservaRequest, ReservaRespo
 				entity.getFechaEntrada(),
 				entity.getFechaSalida(),
 				entity.getMontoTotal(),
-				entity.getEstadoReserva().getDescripcion());
+				entity.getEstadoReserva().getDescripcion(),
+				entity.getEstadoRegistro().toString());
 	}
-	
-	
 
 	@Override
 	public Reservas updateEntityFromRequest(ReservaRequest request, Reservas entity) {
