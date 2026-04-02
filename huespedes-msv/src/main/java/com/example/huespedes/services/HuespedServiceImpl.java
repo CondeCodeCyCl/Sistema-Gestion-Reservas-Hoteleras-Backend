@@ -3,9 +3,12 @@ package com.example.huespedes.services;
 import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.example.commons.clients.ReservacionesClient;
 import com.example.commons.dto.HuespedRequest;
 import com.example.commons.dto.HuespedResponse;
 import com.example.commons.enums.EstadoRegistro;
+import com.example.commons.exceptions.EntidadRelacionadaException;
 import com.example.commons.exceptions.RecursoNoEncontradoException;
 import com.example.huespedes.entities.Huesped;
 import com.example.huespedes.mappers.HuespedMapper;
@@ -21,6 +24,7 @@ public class HuespedServiceImpl implements HuespedService {
 
 	private final HuespedRepository huespedRepository;
 	private final HuespedMapper huespedMapper;
+	private final ReservacionesClient reservacionesClient;
 
 	@Override
 	@Transactional(readOnly = true)
@@ -41,7 +45,7 @@ public class HuespedServiceImpl implements HuespedService {
 		log.info("Buscando Huesped activo con id: {}", id);
 
 		return huespedRepository.findByIdAndEstadoRegistro(id, EstadoRegistro.ACTIVO)
-				.orElseThrow(() -> new RecursoNoEncontradoException("Médico activo no encontrado con id: " + id));
+				.orElseThrow(() -> new RecursoNoEncontradoException("Huesped activo no encontrado con id: " + id));
 	}
 
 	@Override
@@ -80,6 +84,10 @@ public class HuespedServiceImpl implements HuespedService {
 		Huesped huesped = obtenerHuespedException(id);
 		log.info("Eliminando huesped ... con id: {}", id);
 		
+		if(reservacionesClient.tieneReservasEnCurso(id)) {
+			throw new EntidadRelacionadaException("No se puede eliminar el huésped porque tiene reservas EN_CURSO");
+		}
+		
 		huesped.setEstadoRegistro(EstadoRegistro.ELIMINADO);
 		
 		log.info("Huesped con id {} ha sido marcado como eliminado", id);
@@ -89,14 +97,14 @@ public class HuespedServiceImpl implements HuespedService {
 		log.info("Buscando email unico ...");
 
 		if (huespedRepository.existsByEmailAndEstadoRegistro(email.toLowerCase(), EstadoRegistro.ACTIVO)) {
-			throw new IllegalArgumentException("Ya existe un Email registrado con el email " + email);
+			throw new IllegalStateException("Ya existe un Email registrado con el email " + email);
 		}
 	}
 
 	private void validarTelefonoUnico(String telefono) {
 		log.info("Validando telefono unico");
 		if (huespedRepository.existsByTelefonoAndEstadoRegistro(telefono, EstadoRegistro.ACTIVO)) {
-			throw new IllegalArgumentException("El teléfono ya está registrado en un huesped activo");
+			throw new IllegalStateException("El teléfono ya está registrado en un huesped activo");
 		}
 	}
 	
@@ -104,21 +112,21 @@ public class HuespedServiceImpl implements HuespedService {
 		log.info("Buscando documento unico ...");
 		
 		if(huespedRepository.existsByDocumentoAndEstadoRegistro(documento, EstadoRegistro.ACTIVO)) {
-			throw new IllegalArgumentException("El documento ya está registrado en un huesped activo");
+			throw new IllegalStateException("El documento ya está registrado en un huesped activo");
 		}
 	}
 
 	private void validarCambiosUnicos(HuespedRequest request, Long id) {
 		if (huespedRepository.existsByEmailAndIdNotAndEstadoRegistro(request.email().toLowerCase(),id, EstadoRegistro.ACTIVO)) {
-			throw new IllegalArgumentException("El correo ya está registrado en un huesped activo");
+			throw new IllegalStateException("El correo ya está registrado en un huesped activo");
 		}
 		
 		if (huespedRepository.existsByTelefonoAndIdNotAndEstadoRegistro(request.telefono().toLowerCase(), id, EstadoRegistro.ACTIVO)) {
-			throw new IllegalArgumentException("El teléfono ya está registrado en un huesped activo" + request.telefono());
+			throw new IllegalStateException("El teléfono ya está registrado en un huesped activo" + request.telefono());
 		}
 		
 		if(huespedRepository.existsByDocumentoAndIdNotAndEstadoRegistro(request.documento(), id, EstadoRegistro.ACTIVO)) {
-			throw new IllegalArgumentException("El documento ya está registrado en un huesped activo" + request.documento());
+			throw new IllegalStateException("El documento ya está registrado en un huesped activo" + request.documento());
 		}
 	}
 
