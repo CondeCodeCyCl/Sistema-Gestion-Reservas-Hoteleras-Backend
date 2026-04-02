@@ -11,6 +11,10 @@ public record HuespedRequest(
 		@Size(min = 2, max = 50, message = "El nombre debe tener entre 2 y 50 caracteres")
 		String nombre,
 		
+		@NotBlank(message = "El apellido es requerido")
+		@Size(min = 2, max = 50, message = "El apellido debe tener entre 2 y 50 caracteres")
+		String apellido,
+		
 		@NotBlank(message = "El email es requerido")
 		@Email(message = "El email debe tener el formato correcto (correo@dominio)")
 		String email,

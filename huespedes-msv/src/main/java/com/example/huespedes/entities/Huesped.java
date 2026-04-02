@@ -1,6 +1,5 @@
 package com.example.huespedes.entities;
 import com.example.commons.enums.EstadoRegistro;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
