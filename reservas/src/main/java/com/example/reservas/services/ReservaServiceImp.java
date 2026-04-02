@@ -40,7 +40,7 @@ public class ReservaServiceImp implements ReservaService{
 	@Override
 	public List<ReservaResponse> listar() {
 		
-		return reservaRepository.findByEstadoRegistro(EstadoRegistro.ACTIVO)
+		return reservaRepository.findAll()
 				.stream().map(reservasMapper::entityToResponse)
 				.toList();
 	}
@@ -59,7 +59,7 @@ public class ReservaServiceImp implements ReservaService{
 		
 		habitacionesClient.actualizarDisp(request.idHabitacion(), 2L);
 		
-		return reservasMapper.entityToResponse(reserva, huesped, habitacion);
+		return reservasMapper.entityToResponse(reservaRepository.save(reserva), huesped, habitacion);
 	}
 
 	@Override
@@ -67,21 +67,19 @@ public class ReservaServiceImp implements ReservaService{
 		
 		Reservas reserva = obtenerReservaOException(id);
 		
-		if (reserva.getEstadoReserva().equals(EstadoReserva.FINALIZADA) ||
-			reserva.getEstadoReserva().equals(EstadoReserva.CANCELADA) ) {
+		EstadoReserva actual = EstadoReserva.fromDescripcion(reserva.getEstadoReserva().getDescripcion());
+		
+		if (actual==EstadoReserva.FINALIZADA ||
+			actual==EstadoReserva.CANCELADA) {
 			
 			throw new IllegalArgumentException("Las reservas finalizadas o canceladas no se pueden modifcar.");
 		}
 		
-		if (reserva.getEstadoReserva().equals(EstadoReserva.EN_CURSO) &&
+		if (actual==EstadoReserva.EN_CURSO &&
 			comprobarCongruenciaFechas(reserva.getFechaEntrada(), request.fechaSalida())) {
 			
 			reserva.setFechaSalida(request.fechaSalida());
-		}else {
-			throw new IllegalArgumentException("La fecha de salida debe ser después de la fecha de la fecha de entrada.");
-		}
-		
-		if (reserva.getEstadoReserva().equals(EstadoReserva.CONFIRMADA) &&
+		}else if (actual==EstadoReserva.CONFIRMADA &&
 			comprobarCongruenciaFechas(request.fechaEntrada(), request.fechaSalida())) {
 			
 			reserva.setIdHabitacion(request.idHabitacion());
@@ -90,7 +88,8 @@ public class ReservaServiceImp implements ReservaService{
 			reserva.setFechaEntrada(request.fechaEntrada());
 			reserva.setFechaSalida(request.fechaSalida());
 		}else {
-			throw new IllegalArgumentException("La fecha de salida debe ser después de la fecha de la fecha de entrada.");
+			throw new IllegalArgumentException(actual.getDescripcion()+": La fecha de salida " + request.fechaSalida() +
+					" debe ser después de la fecha de la fecha de entrada. " + request.fechaEntrada());
 		}
 		
 		return reservasMapper.entityToResponse(reserva);
