@@ -24,6 +24,15 @@ public enum EstadoReserva {
         }
         throw new IllegalArgumentException("Código de estado no válido: " + codigo);
     }
+	
+	public static EstadoReserva fromDescripcion(String descripcion) {
+        for (EstadoReserva estado : EstadoReserva.values()) {
+            if (estado.getDescripcion() == descripcion) {
+                return estado;
+            }
+        }
+        throw new IllegalArgumentException("Descripción de estado no válida: " + descripcion);
+    }
 
 	
 }

@@ -14,6 +14,7 @@ public record ReservaResponse(
 		DatosHabitacion habitacion,
 		@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy HH:mm")
 		LocalDateTime fechaEntrada,
+		@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy HH:mm")
 		LocalDateTime fechaSalida,
 		BigDecimal montoTotal,
 		String estadoReserva
