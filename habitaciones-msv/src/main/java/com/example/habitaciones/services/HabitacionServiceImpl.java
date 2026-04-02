@@ -61,6 +61,21 @@ public class HabitacionServiceImpl implements HabitacionService {
         Habitacion habitacion = buscarHabitacionActiva(id);
         return mapper.entityToResponse(habitacion);
     }
+    
+    @Override
+    @Transactional(readOnly = true)
+    public HabitacionResponse obtenerHabitacionDisponiblePorId(Long id) {
+        
+        Habitacion habitacion = repository.findByIdAndEstadoHabitacionAndEstadoRegistro(
+                id, 
+                EstadoHabitacion.DISPONIBLE.getCodigo(), 
+                EstadoRegistro.ACTIVO
+        ).orElseThrow(() -> new IllegalArgumentException(
+                "Operación rechazada: La habitación con ID " + id + " no existe o ya no se encuentra disponible."
+        ));
+        
+        return mapper.entityToResponse(habitacion);
+    }
     @Override
     @Transactional(readOnly = true)
     public List<HabitacionResponse> obtenerDisponiblesYActivas() {
