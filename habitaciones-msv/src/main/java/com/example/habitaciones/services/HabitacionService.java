@@ -14,4 +14,6 @@ public interface HabitacionService extends CrudService<HabitacionRequest, Habita
     HabitacionResponse obtenerHabitacionPorIdSinEstado(Long id);
 
     List<HabitacionResponse> obtenerDisponiblesYActivas();
+    
+    HabitacionResponse obtenerHabitacionDisponiblePorId(Long id);
 }

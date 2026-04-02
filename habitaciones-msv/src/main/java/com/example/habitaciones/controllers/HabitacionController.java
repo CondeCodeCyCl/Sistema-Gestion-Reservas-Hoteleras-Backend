@@ -67,16 +67,25 @@ public class HabitacionController extends CommonController<HabitacionRequest, Ha
     }
 
 
-    @PutMapping("/{id}/estado/{idEstado}")
-    public ResponseEntity<HabitacionResponse> cambiarEstado(
+    @PutMapping("/{id}/disponibilidad/{idDisponibilidad}")
+    public ResponseEntity<HabitacionResponse> actializarDisp(
             @PathVariable("id") 
             @Positive(message = "El ID de la habitación debe ser positivo") Long id, 
             
-            @PathVariable("idEstado") 
+            @PathVariable("idDisponibilidad") 
             @Positive(message = "El ID del estado debe ser positivo") Integer idEstado) {
 
         HabitacionResponse response = service.cambiarEstado(id, idEstado);
         
         return ResponseEntity.ok(response);
+    }
+    
+    
+    @GetMapping("/id-habitacion-disp/{id}")
+    public ResponseEntity<HabitacionResponse> obtenerHabitacionDisponiblePorId(
+            @PathVariable 
+            @Positive(message = "El ID de la habitación debe ser positivo") Long id) {
+            
+        return ResponseEntity.ok(service.obtenerHabitacionDisponiblePorId(id));
     }
 }
