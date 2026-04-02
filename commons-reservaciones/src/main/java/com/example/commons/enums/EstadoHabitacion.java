@@ -6,23 +6,28 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public enum EstadoHabitacion {
-	
-	DISPONIBLE(1L, "Lista para asignarse"),
-	OCUPADA(2L, "Asignada a una reserva"),
-	LIMPIEZA(3L, "En limpieza"),
-	MANTENIMIENTO(4L, "En reparación");
-	
-	private final Long codigo;
-	
-	private final String descripcion;
-	
-	public static EstadoHabitacion fromCodigo(Long codigo) {
-        for (EstadoHabitacion estado : EstadoHabitacion.values()) {
-            if (estado.getCodigo() == codigo) {
-                return estado;
+    DISPONIBLE("1", "Disponible para uso"),
+    OCUPADA("2", "Habitación ocupada"),
+    LIMPIEZA("3", "En proceso de limpieza"),
+    MANTENIMIENTO("4", "En mantenimiento");
+
+
+    private final String codigo;
+    private final String descripcion;
+
+    public static EstadoHabitacion fromCodigo(String codigo) {
+        if (codigo == null) return DISPONIBLE; 
+        for (EstadoHabitacion e : values()) {
+            if (e.codigo.equals(codigo)) {
+                return e;
             }
         }
-        throw new IllegalArgumentException("Código de estado no válido: " + codigo);
+        throw new IllegalArgumentException("Código de estado no válido en BD: " + codigo);
+    }
+
+    public static EstadoHabitacion fromCodigo(Integer codigo) {
+        if (codigo == null) return DISPONIBLE;
+        return fromCodigo(String.valueOf(codigo));
     }
 
 }
