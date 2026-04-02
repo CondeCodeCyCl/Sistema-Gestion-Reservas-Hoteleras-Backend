@@ -1,12 +1,8 @@
 package com.example.commons.dto;
 
-public record HuespedResponse(
-		
-		Long id,
+public record DatosHuesped(
 		
 		String nombre,
-		
-		String apellido,
 		
 		String email,
 		
@@ -16,7 +12,7 @@ public record HuespedResponse(
         
         String nacionalidad
 		
+		
 ) {
 
-	
 }
