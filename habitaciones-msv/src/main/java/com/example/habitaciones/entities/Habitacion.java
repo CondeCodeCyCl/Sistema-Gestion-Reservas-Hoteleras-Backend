@@ -25,16 +25,14 @@ public class Habitacion {
     @Column(name = "TIPO", nullable = false, length = 50)
     private String tipo;
 
-    @Column(name = "PRECIO", nullable = false, precision = 10, scale = 2)
+    @Column(name = "PRECIO", nullable = false, columnDefinition = "NUMBER(10,2)")
     private Double precio;
 
     @Column(name = "CAPACIDAD", nullable = false)
     private Short capacidad;
 
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "ESTADO_HABITACION", nullable = false, length = 15)
-    private EstadoHabitacion estadoHabitacion;
+    @Column(name = "ESTADO_HABITACION", nullable = false, length = 10)
+    private String estadoHabitacion;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "ESTADO_REGISTRO", nullable = false, length = 10)

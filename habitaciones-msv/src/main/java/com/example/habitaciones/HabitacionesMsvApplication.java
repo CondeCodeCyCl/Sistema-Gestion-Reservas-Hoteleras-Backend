@@ -3,7 +3,7 @@ package com.example.habitaciones;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = {"com.example.habitaciones", "com.example.commons"})
 public class HabitacionesMsvApplication {
 
 	public static void main(String[] args) {

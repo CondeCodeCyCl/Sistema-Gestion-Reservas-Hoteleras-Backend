@@ -25,10 +25,10 @@ spring:
                 - Path=/api/habitaciones/**
               filters:
                 - StripPrefix=2
-            - id: reservaciones-msv
-              uri: lb://reservaciones-msv
+            - id: reservas
+              uri: lb://reservas
               predicates:
-                - Path=/api/reservaciones/**
+                - Path=/api/reservas/**
               filters:
                 - StripPrefix=2
 server:

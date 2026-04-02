@@ -2,6 +2,7 @@ package com.example.habitaciones.mappers;
 
 import com.example.commons.dto.HabitacionRequest;
 import com.example.commons.dto.HabitacionResponse;
+import com.example.commons.enums.EstadoHabitacion;
 import com.example.commons.mappers.CommonMapper;
 import com.example.habitaciones.entities.Habitacion;
 import org.springframework.stereotype.Component;
@@ -26,7 +27,8 @@ public class HabitacionMapper implements CommonMapper<HabitacionRequest, Habitac
                 entity.getNumero(),
                 entity.getTipo(),
                 entity.getPrecio(),
-                entity.getCapacidad().shortValue()
+                entity.getCapacidad().shortValue(),
+                EstadoHabitacion.fromCodigo(entity.getEstadoHabitacion()) 
         );
     }
 

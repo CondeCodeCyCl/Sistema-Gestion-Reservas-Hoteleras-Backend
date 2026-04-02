@@ -8,7 +8,10 @@ import com.example.commons.services.CrudService;
 import java.util.List;
 
 public interface HabitacionService extends CrudService<HabitacionRequest, HabitacionResponse>{
-	
     
-    HabitacionResponse cambiarEstado(Long id, EstadoHabitacion nuevoEstado);
+    HabitacionResponse cambiarEstado(Long id, Integer idEstado);
+
+    HabitacionResponse obtenerHabitacionPorIdSinEstado(Long id);
+
+    List<HabitacionResponse> obtenerDisponiblesYActivas();
 }
