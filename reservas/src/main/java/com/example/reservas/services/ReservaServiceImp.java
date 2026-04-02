@@ -1,11 +1,17 @@
 package com.example.reservas.services;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.commons.clients.HabitacionesClient;
+import com.example.commons.clients.HuespedesClient;
+import com.example.commons.dto.HabitacionResponse;
+import com.example.commons.dto.HuespedResponse;
 import com.example.commons.enums.EstadoRegistro;
+import com.example.commons.enums.EstadoReserva;
 import com.example.commons.exceptions.RecursoNoEncontradoException;
 import com.example.reservas.dto.ReservaRequest;
 import com.example.reservas.dto.ReservaResponse;
@@ -26,6 +32,10 @@ public class ReservaServiceImp implements ReservaService{
 	private final ReservaRepository reservaRepository;
 	
 	private final ReservasMapper reservasMapper;
+	
+	private final HuespedesClient huespedesClient;
+	
+	private final HabitacionesClient habitacionesClient;
 
 	@Override
 	public List<ReservaResponse> listar() {
@@ -44,10 +54,12 @@ public class ReservaServiceImp implements ReservaService{
 	public ReservaResponse registrar(ReservaRequest request) {
 		
 		Reservas reserva = reservasMapper.requestToEntity(request);
+		HuespedResponse huesped = obtenerHuespedOException(request.idHuesped());
+		HabitacionResponse habitacion = obtenerHabitacionOException(request.idHabitacion());
 		
-		reservaRepository.save(reserva);
+		habitacionesClient.actualizarDisp(request.idHabitacion(), 2L);
 		
-		return reservasMapper.entityToResponse(reserva);
+		return reservasMapper.entityToResponse(reserva, huesped, habitacion);
 	}
 
 	@Override
@@ -55,7 +67,31 @@ public class ReservaServiceImp implements ReservaService{
 		
 		Reservas reserva = obtenerReservaOException(id);
 		
-		reservasMapper.updateEntityFromRequest(request, reserva);
+		if (reserva.getEstadoReserva().equals(EstadoReserva.FINALIZADA) ||
+			reserva.getEstadoReserva().equals(EstadoReserva.CANCELADA) ) {
+			
+			throw new IllegalArgumentException("Las reservas finalizadas o canceladas no se pueden modifcar.");
+		}
+		
+		if (reserva.getEstadoReserva().equals(EstadoReserva.EN_CURSO) &&
+			comprobarCongruenciaFechas(reserva.getFechaEntrada(), request.fechaSalida())) {
+			
+			reserva.setFechaSalida(request.fechaSalida());
+		}else {
+			throw new IllegalArgumentException("La fecha de salida debe ser después de la fecha de la fecha de entrada.");
+		}
+		
+		if (reserva.getEstadoReserva().equals(EstadoReserva.CONFIRMADA) &&
+			comprobarCongruenciaFechas(request.fechaEntrada(), request.fechaSalida())) {
+			
+			reserva.setIdHabitacion(request.idHabitacion());
+			reserva.setIdHuesped(request.idHuesped());
+			reserva.setMontoTotal(request.montoTotal());
+			reserva.setFechaEntrada(request.fechaEntrada());
+			reserva.setFechaSalida(request.fechaSalida());
+		}else {
+			throw new IllegalArgumentException("La fecha de salida debe ser después de la fecha de la fecha de entrada.");
+		}
 		
 		return reservasMapper.entityToResponse(reserva);
 	}
@@ -67,11 +103,85 @@ public class ReservaServiceImp implements ReservaService{
 		
 	}
 	
+	@Override
+	public ReservaResponse checkIn(Long id) {
+		
+		Reservas reserva = obtenerReservaOException(id);
+		EstadoReserva nuevo = EstadoReserva.fromCodigo(2L);
+		
+		transicionReservaValida(reserva.getEstadoReserva(), nuevo);
+		
+		reserva.setEstadoReserva(EstadoReserva.EN_CURSO);
+		
+		return reservasMapper.entityToResponse(reserva);
+	}
+	
+	@Override
+	public ReservaResponse checkOut(Long id) {
+		Reservas reserva = obtenerReservaOException(id);
+		EstadoReserva nuevo = EstadoReserva.fromCodigo(3L);
+		
+		transicionReservaValida(reserva.getEstadoReserva(), nuevo);
+		
+		reserva.setEstadoReserva(EstadoReserva.EN_CURSO);
+		
+		return reservasMapper.entityToResponse(reserva);
+	}
+	
+	@Override
+	public boolean cancelar(Long id) {
+		Reservas reserva = obtenerReservaOException(id);
+		EstadoReserva nuevo = EstadoReserva.fromCodigo(4L);
+		
+		transicionReservaValida(reserva.getEstadoReserva(), nuevo);
+		
+		reserva.setEstadoReserva(EstadoReserva.CANCELADA);
+		
+		habitacionesClient.actualizarDisp(reserva.getIdHabitacion(), 1L);
+		
+		return true;
+	}
+	
 	private Reservas obtenerReservaOException(Long id) {
 		return reservaRepository.findByIdAndEstadoRegistro(id, EstadoRegistro.ACTIVO).orElseThrow(() ->
 		 new RecursoNoEncontradoException("No se encontró una reserva activa con id: "));
 	}
 	
+	private HuespedResponse obtenerHuespedOException(Long id) {
+		return huespedesClient.obtenerHuespedPorId(id);
+	}
 	
+	private HabitacionResponse obtenerHabitacionOException(Long id) {
+		return habitacionesClient.obtenerHabitacionConDisponibilidad(id);
+	}
+
+	private boolean transicionReservaValida(EstadoReserva actual, EstadoReserva nuevo) {
+		
+		switch (actual) {
+		case CONFIRMADA:
+				if (nuevo.equals(EstadoReserva.EN_CURSO)) {
+					return true;
+				}else if(nuevo.equals(EstadoReserva.CANCELADA)) {
+					return true;
+				}else {
+					throw new IllegalStateException("Las reservas confirmadas solo pueden pasar a canceladas o en curso.");
+				}
+			
+		case EN_CURSO:
+			if (nuevo.equals(EstadoReserva.FINALIZADA)) {
+				return true;
+			}else {
+				throw new IllegalStateException("Las reservas en curso solo pueden pasar a finalizadas.");
+			}
+		
+		default:
+				throw new IllegalStateException("El estado no es válido o la reserva está finalizada (o fue cancelada)");
+		}
+		
+	}
+	
+	private boolean comprobarCongruenciaFechas(LocalDateTime fechaEntrada, LocalDateTime fechaSalida) {
+		return fechaSalida.isAfter(fechaEntrada);
+	}
 
 }
