@@ -6,6 +6,8 @@ public record HuespedResponse(
 		
 		String nombre,
 		
+		String apellido,
+		
 		String email,
 		
         String telefono,
