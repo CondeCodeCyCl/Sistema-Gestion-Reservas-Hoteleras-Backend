@@ -17,7 +17,8 @@ public record ReservaResponse(
 		@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy HH:mm")
 		LocalDateTime fechaSalida,
 		BigDecimal montoTotal,
-		String estadoReserva
+		String estadoReserva,
+		String estadoRegistro
 		
 ) {
 }
