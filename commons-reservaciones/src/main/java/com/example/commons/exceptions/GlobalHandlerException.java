@@ -132,4 +132,11 @@ public class GlobalHandlerException {
                         "El parámetro '" + e.getName() + "' en la URL tiene un tipo de dato inválido."));
     }
     
+    @ExceptionHandler(DatosDuplicadosException.class)
+    public ResponseEntity<ErrorResponse> handleDatoDuplicadoException(DatosDuplicadosException e) {
+        log.warn("Dato duplicado: {}", e.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(new ErrorResponse(HttpStatus.CONFLICT.value(), e.getMessage()));
+    }
+    
 }
