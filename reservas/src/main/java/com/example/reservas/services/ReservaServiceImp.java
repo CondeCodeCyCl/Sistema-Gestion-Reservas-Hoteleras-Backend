@@ -73,6 +73,10 @@ public class ReservaServiceImp implements ReservaService{
 		HuespedResponse huesped = obtenerHuespedOException(request.idHuesped());
 		HabitacionResponse habitacion = obtenerHabitacionOException(request.idHabitacion());
 		
+		if (!comprobarCongruenciaFechas(request.fechaEntrada(), request.fechaSalida())) {
+			throw new IllegalStateException("La fecha de salida debe ser después de la fecha de la fecha de entrada.");
+		}
+		
 		habitacionesClient.actualizarDisp(request.idHabitacion(), 2L);
 		
 		return reservasMapper.entityToResponse(reservaRepository.save(reserva));
@@ -98,6 +102,11 @@ public class ReservaServiceImp implements ReservaService{
 		}else if (actual==EstadoReserva.CONFIRMADA &&
 			comprobarCongruenciaFechas(request.fechaEntrada(), request.fechaSalida())) {
 			
+			if (reserva.getIdHabitacion() != request.idHabitacion()) {
+				habitacionesClient.actualizarDisp(reserva.getIdHabitacion(), 3L);
+				habitacionesClient.actualizarDisp(reserva.getIdHabitacion(), 1L);
+			}
+			
 			reserva.setIdHabitacion(request.idHabitacion());
 			reserva.setIdHuesped(request.idHuesped());
 			reserva.setMontoTotal(request.montoTotal());
@@ -108,6 +117,10 @@ public class ReservaServiceImp implements ReservaService{
 					" debe ser después de la fecha de la fecha de entrada. " + request.fechaEntrada());
 		}
 		
+		
+		
+		habitacionesClient.actualizarDisp(request.idHabitacion(), 2L);
+		
 		return reservasMapper.entityToResponse(reserva);
 	}
 
@@ -116,6 +129,7 @@ public class ReservaServiceImp implements ReservaService{
 		Reservas reserva = obtenerReservaOException(id);
 		
 		if (reserva.getEstadoReserva()!=EstadoReserva.EN_CURSO) {
+			habitacionesClient.actualizarDisp(reserva.getIdHabitacion(), 3L);
 			habitacionesClient.actualizarDisp(reserva.getIdHabitacion(), 1L);
 			reserva.setEstadoRegistro(EstadoRegistro.ELIMINADO);
 		}else {
