@@ -11,6 +11,8 @@ public interface HuespedRepository extends JpaRepository<Huesped, Long>{
 	
 	List<Huesped> findByEstadoRegistro(EstadoRegistro estadoRegistro);
 	Optional<Huesped> findByIdAndEstadoRegistro(Long id, EstadoRegistro estadoRegistro);
+	Optional<Huesped> findById(Long id);
+
 	
 	boolean existsByEmailAndEstadoRegistro(String email, EstadoRegistro estadoRegistro);
 	boolean existsByEmailAndIdNotAndEstadoRegistro(String email, Long id, EstadoRegistro estadoRegistro);
