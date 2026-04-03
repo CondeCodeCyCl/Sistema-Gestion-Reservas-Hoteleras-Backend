@@ -30,7 +30,7 @@ public class UsuarioServiceImplement implements UsuarioService{
     @Override
     @Transactional(readOnly = true)
     public List<UsuarioResponse> listar() {
-        log.info("Listado de todos los usuarios solicitado");
+        log.info("Listado de todos los usuarios solicitados");
         return usuarioRepository.findAll().stream()
                 .map(usuarioMapper::entityToResponse)
                 .toList();
@@ -102,7 +102,7 @@ public class UsuarioServiceImplement implements UsuarioService{
 
     private void validarUsernameUnico(String username) {
         log.info("Validando nombre de usuario único...");
-        if (usuarioRepository.existsByUsername(username)) {
+        if (usuarioRepository.existsByUsernameIgnoreCase(username)) {
             throw new IllegalStateException("El nombre de usuario '" + username + "' ya se encuentra en uso");
         }
     }
