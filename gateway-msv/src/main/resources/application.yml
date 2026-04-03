@@ -31,6 +31,12 @@ spring:
                 - Path=/api/reservas/**
               filters:
                 - StripPrefix=2
+            - id: usuarios-msv
+              uri: lb://usuarios-msv
+              predicates:
+                - Path=/api/usuarios/**
+              filters:
+                - StripPrefix=2
 server:
   port: 8090
 eureka:

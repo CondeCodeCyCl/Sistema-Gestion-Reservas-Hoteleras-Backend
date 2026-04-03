@@ -100,22 +100,35 @@ public class HabitacionServiceImpl implements HabitacionService {
     }
 
     @Override
+    @Transactional
     public HabitacionResponse actualizar(HabitacionRequest request, Long id) {
         
         Habitacion habitacion = buscarHabitacionActiva(id);
-
         EstadoHabitacion estadoActual = EstadoHabitacion.fromCodigo(habitacion.getEstadoHabitacion());
 
         if (estadoActual == EstadoHabitacion.OCUPADA) {
             throw new IllegalArgumentException(
-                "No se puede modificar la información de una habitación mientras se encuentra OCUPADA."
+                "Operación rechazada: No se puede modificar la información de una habitación mientras se encuentra OCUPADA."
             );
         }
-
+        if (!habitacion.getNumero().equals(request.numero())) {
+            boolean numeroEnUso = repository.existsByNumeroAndEstadoRegistroAndIdNot(
+                    request.numero(), 
+                    EstadoRegistro.ACTIVO, 
+                    id
+            );
+            
+            if (numeroEnUso) {
+                throw new IllegalArgumentException(
+                    "Operación rechazada: El número " + request.numero() + " ya está en uso por otra habitación."
+                );
+            }
+        }
         habitacion.setNumero(request.numero());
         habitacion.setTipo(request.tipo());
         habitacion.setPrecio(request.precio());
         habitacion.setCapacidad(request.capacidad());
+
         return mapper.entityToResponse(repository.save(habitacion));
     }
 
