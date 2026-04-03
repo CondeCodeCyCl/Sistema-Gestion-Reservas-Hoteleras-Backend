@@ -115,4 +115,28 @@ public class GlobalHandlerException {
     			"Servicio remoto no disponible o no responde");
         return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(response);
     }
+    
+    @ExceptionHandler(org.springframework.http.converter.HttpMessageNotReadableException.class)
+    public ResponseEntity<ErrorResponse> handleHttpMessageNotReadableException(org.springframework.http.converter.HttpMessageNotReadableException e) {
+        log.error("Error al leer el JSON (probablemente letras en lugar de números): {}", e.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponse(HttpStatus.BAD_REQUEST.value(), 
+                        "El formato de los datos enviados es inválido o contiene tipos de datos incorrectos (ej. letras en lugar de números)."));
+    }
+    
+    @ExceptionHandler(org.springframework.web.method.annotation.MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ErrorResponse> handleMethodArgumentTypeMismatchException(org.springframework.web.method.annotation.MethodArgumentTypeMismatchException e) {
+        log.error("Tipo de dato incorrecto en la URL: {}", e.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponse(HttpStatus.BAD_REQUEST.value(), 
+                        "El parámetro '" + e.getName() + "' en la URL tiene un tipo de dato inválido."));
+    }
+    
+    @ExceptionHandler(DatosDuplicadosException.class)
+    public ResponseEntity<ErrorResponse> handleDatoDuplicadoException(DatosDuplicadosException e) {
+        log.warn("Dato duplicado: {}", e.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(new ErrorResponse(HttpStatus.CONFLICT.value(), e.getMessage()));
+    }
+    
 }

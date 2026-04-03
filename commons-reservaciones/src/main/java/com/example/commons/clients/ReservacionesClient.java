@@ -5,9 +5,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import com.example.commons.configuration.FeignClientConfig;
 
-@FeignClient(name = "reservaciones-msv", configuration = FeignClientConfig.class)
+@FeignClient(name = "reservas", configuration = FeignClientConfig.class)
 public interface ReservacionesClient {
 
-	@GetMapping("/api/reservaciones/huesped/{idHuesped}/en-curso")
+	@GetMapping("/huesped/{idHuesped}/en-curso")
     boolean tieneReservasEnCurso(@PathVariable("idHuesped") Long idHuesped);
 }

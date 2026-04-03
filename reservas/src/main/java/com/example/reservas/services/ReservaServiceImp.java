@@ -10,6 +10,7 @@ import com.example.commons.clients.HabitacionesClient;
 import com.example.commons.clients.HuespedesClient;
 import com.example.commons.dto.HabitacionResponse;
 import com.example.commons.dto.HuespedResponse;
+import com.example.commons.enums.EstadoHabitacion;
 import com.example.commons.enums.EstadoRegistro;
 import com.example.commons.enums.EstadoReserva;
 import com.example.commons.exceptions.RecursoNoEncontradoException;
@@ -40,15 +41,30 @@ public class ReservaServiceImp implements ReservaService{
 	@Override
 	public List<ReservaResponse> listar() {
 		
-		return reservaRepository.findAll()
-				.stream().map(reservasMapper::entityToResponse)
-				.toList();
+		return reservaRepository.findAll().stream()
+                .map(reservasMapper::entityToResponse)
+                .toList();
 	}
 
 	@Override
 	public ReservaResponse obtenerPorId(Long id) {
-		return reservasMapper.entityToResponse(obtenerReservaOException(id));
+		Reservas reserva = reservaRepository.findByIdAndEstadoRegistro(id, EstadoRegistro.ACTIVO).orElseThrow(() ->
+		 new RecursoNoEncontradoException("No se encontró reserva activa con id: "+id)
+		);
+		
+		return reservasMapper.entityToResponse(reserva);
 	}
+	
+	@Override
+	public ReservaResponse obtenerReservaSinEstado(Long id) {
+		
+		Reservas reserva = reservaRepository.findById(id).orElseThrow(() ->
+				 new RecursoNoEncontradoException("No se encontró la reserva con id: "+id)
+				);
+		
+		return reservasMapper.entityToResponse(reserva);
+	}
+
 
 	@Override
 	public ReservaResponse registrar(ReservaRequest request) {
@@ -59,7 +75,7 @@ public class ReservaServiceImp implements ReservaService{
 		
 		habitacionesClient.actualizarDisp(request.idHabitacion(), 2L);
 		
-		return reservasMapper.entityToResponse(reservaRepository.save(reserva), huesped, habitacion);
+		return reservasMapper.entityToResponse(reservaRepository.save(reserva));
 	}
 
 	@Override
@@ -98,7 +114,13 @@ public class ReservaServiceImp implements ReservaService{
 	@Override
 	public void eliminar(Long id) {
 		Reservas reserva = obtenerReservaOException(id);
-		reserva.setEstadoRegistro(EstadoRegistro.ELIMINADO);
+		
+		if (reserva.getEstadoReserva()!=EstadoReserva.EN_CURSO) {
+			habitacionesClient.actualizarDisp(reserva.getIdHabitacion(), 1L);
+			reserva.setEstadoRegistro(EstadoRegistro.ELIMINADO);
+		}else {
+			throw new IllegalStateException("No se puede eliminar una reserva en curso, debe finalizarla primero.");
+		}
 		
 	}
 	
@@ -110,7 +132,7 @@ public class ReservaServiceImp implements ReservaService{
 		
 		transicionReservaValida(reserva.getEstadoReserva(), nuevo);
 		
-		reserva.setEstadoReserva(EstadoReserva.EN_CURSO);
+		reserva.setEstadoReserva(nuevo);
 		
 		return reservasMapper.entityToResponse(reserva);
 	}
@@ -122,7 +144,10 @@ public class ReservaServiceImp implements ReservaService{
 		
 		transicionReservaValida(reserva.getEstadoReserva(), nuevo);
 		
-		reserva.setEstadoReserva(EstadoReserva.EN_CURSO);
+		reserva.setEstadoReserva(EstadoReserva.FINALIZADA);
+		
+		habitacionesClient.actualizarDisp(reserva.getIdHabitacion(), 3L);
+		habitacionesClient.actualizarDisp(reserva.getIdHabitacion(), 1L);
 		
 		return reservasMapper.entityToResponse(reserva);
 	}
@@ -134,16 +159,26 @@ public class ReservaServiceImp implements ReservaService{
 		
 		transicionReservaValida(reserva.getEstadoReserva(), nuevo);
 		
-		reserva.setEstadoReserva(EstadoReserva.CANCELADA);
-		
-		habitacionesClient.actualizarDisp(reserva.getIdHabitacion(), 1L);
+		if (reserva.getEstadoReserva()==EstadoReserva.CONFIRMADA) {
+			
+			reserva.setEstadoReserva(EstadoReserva.CANCELADA);
+			habitacionesClient.actualizarDisp(reserva.getIdHabitacion(), 3L);
+			habitacionesClient.actualizarDisp(reserva.getIdHabitacion(), 1L);
+		}else {
+			throw new IllegalStateException("No se puede cancelar reservas que no estén en estado de confirmada.");
+		}
 		
 		return true;
 	}
 	
+	@Override
+	public boolean tieneReservasEnCurso(Long idHuesped) {
+		return reservaRepository.existsByIdHuespedAndEstadoRegistroAndEstadoReserva(idHuesped, EstadoRegistro.ACTIVO, EstadoReserva.EN_CURSO);
+	}
+	
 	private Reservas obtenerReservaOException(Long id) {
 		return reservaRepository.findByIdAndEstadoRegistro(id, EstadoRegistro.ACTIVO).orElseThrow(() ->
-		 new RecursoNoEncontradoException("No se encontró una reserva activa con id: "));
+		 new RecursoNoEncontradoException("No se encontró una reserva activa con id: "+id));
 	}
 	
 	private HuespedResponse obtenerHuespedOException(Long id) {
@@ -182,5 +217,5 @@ public class ReservaServiceImp implements ReservaService{
 	private boolean comprobarCongruenciaFechas(LocalDateTime fechaEntrada, LocalDateTime fechaSalida) {
 		return fechaSalida.isAfter(fechaEntrada);
 	}
-
+	
 }

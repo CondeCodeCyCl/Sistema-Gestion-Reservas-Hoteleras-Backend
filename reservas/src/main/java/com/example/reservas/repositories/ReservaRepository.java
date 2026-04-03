@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.example.commons.enums.EstadoRegistro;
+import com.example.commons.enums.EstadoReserva;
 
 
 @Repository
@@ -17,6 +18,6 @@ public interface ReservaRepository extends JpaRepository<Reservas, Long>{
 	
 	Optional<Reservas> findByIdAndEstadoRegistro(Long id, EstadoRegistro estadoRegistro);
 	
-	boolean existsByIdHuespedAndEstadoRegistro(Long idHuesped, EstadoRegistro estadoRegistro);
+	boolean existsByIdHuespedAndEstadoRegistroAndEstadoReserva(Long idHuesped, EstadoRegistro estadoRegistro, EstadoReserva estadoReserva);
 
 }
