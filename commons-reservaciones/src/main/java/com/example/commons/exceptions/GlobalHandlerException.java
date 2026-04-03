@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.NoSuchElementException;
 
 @RestControllerAdvice
@@ -39,12 +41,23 @@ public class GlobalHandlerException {
                 .body(new ErrorResponse(HttpStatus.BAD_REQUEST.value(), mensaje));
     }
 
-    @ExceptionHandler(IllegalArgumentException.class)
+    /*@ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ErrorResponse> handleIllegalArgumentException(IllegalArgumentException e) {
         log.error("Error en la petición: {}", e.getMessage());
         return ResponseEntity.badRequest().body(
                 new ErrorResponse(HttpStatus.BAD_REQUEST.value(), e.getMessage())
         );
+    }*/
+    
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<Map<String, String>> handleIllegalArgumentException(IllegalArgumentException ex) {
+        
+        // Creamos un JSON clave-valor limpio
+        Map<String, String> respuesta = new HashMap<>();
+        respuesta.put("message", ex.getMessage()); 
+        
+        // Retornamos el JSON con un código 400 (Bad Request)
+        return new ResponseEntity<>(respuesta, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(NoSuchElementException.class)
