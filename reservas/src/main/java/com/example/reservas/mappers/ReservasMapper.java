@@ -44,7 +44,7 @@ public class ReservasMapper implements CommonMapper<ReservaRequest, ReservaRespo
 	public ReservaResponse entityToResponse(Reservas entity) {
 		if(entity == null) return null;
 		
-		HuespedResponse huesped = huespedesClient.obtenerHuespedPorId(entity.getIdHuesped());
+		HuespedResponse huesped = huespedesClient.obtenerHuespedSinEstado(entity.getIdHuesped());
 		
 		HabitacionResponse habitacion = habitacionesClient.obtenerHabitacionPorId(entity.getIdHabitacion());
 		
@@ -85,7 +85,8 @@ public class ReservasMapper implements CommonMapper<ReservaRequest, ReservaRespo
 		if(huesped == null) return null;
 		
 		return new DatosHuesped(
-				huesped.nombre(),
+				huesped.id(),
+				huesped.nombre().concat(" "+huesped.apellido()),
 				huesped.email(),
 				huesped.telefono(),
 				huesped.documento(),
@@ -97,6 +98,7 @@ public class ReservasMapper implements CommonMapper<ReservaRequest, ReservaRespo
 		if(habitacion == null) return null;
 		
 		return new DatosHabitacion(
+				habitacion.id(),
 				habitacion.numero(),
 				habitacion.tipo(),
 				habitacion.precio(),

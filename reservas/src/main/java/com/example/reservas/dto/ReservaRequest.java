@@ -21,12 +21,12 @@ public record ReservaRequest(
 		
 		@NotNull(message = "La fecha de entrada es requerida")
 		@FutureOrPresent(message = "La fecha de entrada debe ser futura")
-		@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy HH:mm")
+		@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm")
 		LocalDateTime fechaEntrada,
 		
 		@NotNull(message = "La fecha de salida es requerida")
 		@FutureOrPresent(message = "La fecha de salida debe ser futura")
-		@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy HH:mm")
+		@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm")
 		LocalDateTime fechaSalida,
 		
 		@NotNull(message = "El monto total es requerido")
