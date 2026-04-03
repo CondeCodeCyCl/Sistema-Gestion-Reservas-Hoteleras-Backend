@@ -29,14 +29,14 @@ public class SecurityConfig {
 	            return corsConfiguration;
 	        }))
 	        .authorizeExchange((authorize) -> authorize
-		            /*.pathMatchers(HttpMethod.OPTIONS ,"/**").permitAll()
+		            .pathMatchers(HttpMethod.OPTIONS ,"/**").permitAll()
 		            .pathMatchers(HttpMethod.GET ,"/**").hasAnyRole("ADMIN", "USER")
 		            .pathMatchers(HttpMethod.POST ,"/**").hasAnyRole("ADMIN", "USER")
 		            .pathMatchers(HttpMethod.PUT ,"/**").hasAnyRole("ADMIN", "USER")
 		            .pathMatchers(HttpMethod.PATCH ,"/**").hasAnyRole("ADMIN", "USER")
 		            .pathMatchers(HttpMethod.DELETE ,"/**").hasRole("ADMIN")
-		            .anyExchange().authenticated()*/
-	        		.anyExchange().permitAll()
+		            .anyExchange().authenticated()
+	        		//.anyExchange().permitAll()
 		        )
 
 	        .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt ->
@@ -49,7 +49,7 @@ public class SecurityConfig {
 	ReactiveJwtAuthenticationConverterAdapter reactiveJwtAuthenticationConverterAdapter() {
 		JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
         grantedAuthoritiesConverter.setAuthoritiesClaimName("roles");
-        grantedAuthoritiesConverter.setAuthorityPrefix("");
+        grantedAuthoritiesConverter.setAuthorityPrefix("ROLE_");
 
         JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
         jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter);

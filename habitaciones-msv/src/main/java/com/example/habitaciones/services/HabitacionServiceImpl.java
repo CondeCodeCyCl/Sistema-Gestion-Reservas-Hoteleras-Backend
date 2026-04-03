@@ -143,6 +143,23 @@ public class HabitacionServiceImpl implements HabitacionService {
         habitacion.setEstadoRegistro(EstadoRegistro.ELIMINADO);
         repository.save(habitacion);
     }
+    
+    /*@Override
+    public List<HabitacionResponse> listar(boolean incluirBorradas) {
+    	List<Habitacion> entidades;
+        
+        if (incluirBorradas) {
+            entidades = repository.findAll(); 
+        } else {
+            entidades = repository.findByEstadoRegistro(EstadoRegistro.ACTIVO); 
+        }
+        
+        return entidades.stream()
+                .map(habitacion -> mapper.entityToResponse(habitacion))
+                .collect(Collectors.toList());
+    }*/
+    
+
 
     @Override
     public HabitacionResponse cambiarEstado(Long id, Integer idEstado) {

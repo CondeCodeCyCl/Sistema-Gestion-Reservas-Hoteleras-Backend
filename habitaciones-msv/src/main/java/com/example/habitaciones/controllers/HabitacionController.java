@@ -3,6 +3,7 @@ package com.example.habitaciones.controllers;
 import com.example.commons.controllers.CommonController;
 import com.example.commons.dto.HabitacionRequest;
 import com.example.commons.dto.HabitacionResponse;
+import com.example.habitaciones.entities.Habitacion;
 import com.example.habitaciones.services.HabitacionService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
@@ -65,6 +66,14 @@ public class HabitacionController extends CommonController<HabitacionRequest, Ha
         service.eliminar(id);
         return ResponseEntity.noContent().build();
     }
+    
+    /*@GetMapping
+    public ResponseEntity<List<HabitacionResponse>> listar(
+            @RequestParam(name = "incluirBorradas", defaultValue = "false") boolean incluirBorradas) {
+        
+        List<HabitacionResponse> habitaciones = service.obtenerHabitaciones(incluirBorradas);
+        return ResponseEntity.ok(habitaciones);
+    }*/
 
 
     @PutMapping("/{id}/disponibilidad/{idDisponibilidad}")
