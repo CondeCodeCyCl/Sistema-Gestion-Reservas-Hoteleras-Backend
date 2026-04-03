@@ -1,5 +1,8 @@
 package com.example.usuarios.entities;
 
+import com.example.commons.enums.Roles;
+
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -36,6 +39,6 @@ public class Usuario {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "ROL", nullable = false, length = 10)
-    private Rol rol;
+    private Roles rol;
 
 }
