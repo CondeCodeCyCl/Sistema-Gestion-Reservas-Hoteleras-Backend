@@ -14,9 +14,8 @@ public class SecurityConfig {
 	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		http.csrf(csrf -> csrf.disable())
 		.authorizeHttpRequests(exchange -> exchange
-				/* .anyRequest().authenticated())*/
-				.anyRequest().permitAll()
-				)
+				.anyRequest().authenticated())
+				//.anyRequest().permitAll())
 				.oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()));
 		return http.build();
 	}

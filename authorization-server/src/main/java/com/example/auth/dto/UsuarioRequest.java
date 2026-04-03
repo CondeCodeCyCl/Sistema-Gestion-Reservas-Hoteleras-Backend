@@ -11,8 +11,7 @@ public record UsuarioRequest(
 	     @NotBlank(message = "La contraseña es requerida")
 	     @Size(min = 8, max = 20)
 	     String password,
-	     @NotNull(message = "Los roles son requeridos")
-	     @Size(min = 1)
-	     Set<String> roles
+	     @NotBlank(message = "El rol es requerido")
+		 String rol
 ) {
 }

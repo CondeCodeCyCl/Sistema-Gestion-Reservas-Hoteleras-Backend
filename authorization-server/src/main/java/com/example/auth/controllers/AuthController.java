@@ -18,8 +18,8 @@ import lombok.AllArgsConstructor;
 public class AuthController {
 	private final AuthService authService;
 
-    @PostMapping("/login")
-    public ResponseEntity<TokenResponse> login(@Valid @RequestBody LoginRequest request) throws Exception {
-        return ResponseEntity.ok(authService.autenticar(request));
-    }
+//    @PostMapping("/login")
+//    public ResponseEntity<TokenResponse> login(@Valid @RequestBody LoginRequest request) throws Exception {
+//        return ResponseEntity.ok(authService.autenticar(request));
+//    }
 }
