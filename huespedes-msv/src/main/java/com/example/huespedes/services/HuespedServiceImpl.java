@@ -46,6 +46,14 @@ public class HuespedServiceImpl implements HuespedService {
 		return huespedRepository.findByIdAndEstadoRegistro(id, EstadoRegistro.ACTIVO)
 				.orElseThrow(() -> new RecursoNoEncontradoException("Huesped activo no encontrado con id: " + id));
 	}
+	
+	@Override
+	public HuespedResponse obtenerHuespedSinEstado(Long id) {
+		log.info("Buscando Huesped sin estado con id: {}", id);
+
+		return huespedMapper.entityToResponse(huespedRepository.findById(id)
+				.orElseThrow(() -> new RecursoNoEncontradoException("Huesped sin estado no encontrado con id: " + id)));
+	}
 
 	@Override
 	public HuespedResponse registrar(HuespedRequest request) {

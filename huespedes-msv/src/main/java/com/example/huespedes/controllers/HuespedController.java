@@ -23,5 +23,9 @@ public class HuespedController extends CommonController<HuespedRequest, HuespedR
 		public ResponseEntity<HuespedResponse> obtenerHuespedEspecial(@PathVariable Long id) {
 			return ResponseEntity.ok(service.obtenerPorId(id));
 		}
-
+		
+		@GetMapping("/id-huespedSinEstado/{id}")
+		public ResponseEntity<HuespedResponse> obtenerHuespedSinEstado(@PathVariable Long id) {
+			return ResponseEntity.ok(service.obtenerHuespedSinEstado(id));
+		}
 }
