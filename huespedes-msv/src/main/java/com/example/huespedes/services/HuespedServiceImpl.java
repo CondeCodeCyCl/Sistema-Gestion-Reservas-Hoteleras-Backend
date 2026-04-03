@@ -1,13 +1,12 @@
 package com.example.huespedes.services;
-
 import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import com.example.commons.clients.ReservacionesClient;
 import com.example.commons.dto.HuespedRequest;
 import com.example.commons.dto.HuespedResponse;
 import com.example.commons.enums.EstadoRegistro;
+import com.example.commons.exceptions.DatosDuplicadosException;
 import com.example.commons.exceptions.EntidadRelacionadaException;
 import com.example.commons.exceptions.RecursoNoEncontradoException;
 import com.example.huespedes.entities.Huesped;
@@ -97,14 +96,14 @@ public class HuespedServiceImpl implements HuespedService {
 		log.info("Buscando email unico ...");
 
 		if (huespedRepository.existsByEmailAndEstadoRegistro(email.toLowerCase(), EstadoRegistro.ACTIVO)) {
-			throw new IllegalStateException("Ya existe un Email registrado con el email " + email);
+			throw new RecursoNoEncontradoException("Ya existe un Email registrado con el email " + email);
 		}
 	}
 
 	private void validarTelefonoUnico(String telefono) {
 		log.info("Validando telefono unico");
 		if (huespedRepository.existsByTelefonoAndEstadoRegistro(telefono, EstadoRegistro.ACTIVO)) {
-			throw new IllegalStateException("El teléfono ya está registrado en un huesped activo");
+			throw new RecursoNoEncontradoException("El teléfono ya está registrado en un huesped activo");
 		}
 	}
 	
@@ -112,21 +111,21 @@ public class HuespedServiceImpl implements HuespedService {
 		log.info("Buscando documento unico ...");
 		
 		if(huespedRepository.existsByDocumentoAndEstadoRegistro(documento, EstadoRegistro.ACTIVO)) {
-			throw new IllegalStateException("El documento ya está registrado en un huesped activo");
+			throw new RecursoNoEncontradoException("El documento ya está registrado en un huesped activo");
 		}
 	}
 
 	private void validarCambiosUnicos(HuespedRequest request, Long id) {
 		if (huespedRepository.existsByEmailAndIdNotAndEstadoRegistro(request.email().toLowerCase(),id, EstadoRegistro.ACTIVO)) {
-			throw new IllegalStateException("El correo ya está registrado en un huesped activo");
+			throw new DatosDuplicadosException("El correo ya está registrado en un huesped activo con el email: " + request.email());
 		}
 		
 		if (huespedRepository.existsByTelefonoAndIdNotAndEstadoRegistro(request.telefono().toLowerCase(), id, EstadoRegistro.ACTIVO)) {
-			throw new IllegalStateException("El teléfono ya está registrado en un huesped activo" + request.telefono());
+			throw new DatosDuplicadosException("El teléfono ya está registrado en un huesped activo con el teléfono: " + request.telefono());
 		}
 		
 		if(huespedRepository.existsByDocumentoAndIdNotAndEstadoRegistro(request.documento(), id, EstadoRegistro.ACTIVO)) {
-			throw new IllegalStateException("El documento ya está registrado en un huesped activo" + request.documento());
+			throw new DatosDuplicadosException("El documento ya está registrado en un huesped activo con el documento: " + request.documento());
 		}
 	}
 
